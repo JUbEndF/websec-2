@@ -1,0 +1,122 @@
+<html>
+  <head>
+	<meta charset="utf-8">
+    <link href="style.css" rel="stylesheet">
+    <script type="text/javascript" src="script.js"></script>
+    <script type="text/javascript" language="javascript">
+      var autocomplete = ['абакан', 'армавир', 'баку', 'биробиджан', 'вильнюс'];
+      window.onload = function() {
+        document.getElementById('input').onkeyup = keyUp;
+      }
+
+      function keyUp(e) {
+        var e = e || window.event;
+        switch (e.keyCode) {
+          case 40:
+            var selected = -1;
+            var spans = document.getElementById('autocomplete').getElementsByTagName('span');
+            for (i = 0; i <= spans.length; i++)
+              if (i in spans && spans[i].className == 'selected') {
+                spans[i].className = '';
+                selected = i;
+              }
+            selected++;
+            for (i = 0; i <= spans.length; i++)
+              if (i in spans && i == selected) {
+                spans[i].className = 'selected';
+              }
+            break;
+          case 38:
+            var spans = document.getElementById('autocomplete').getElementsByTagName('span');
+            var selected = spans.length;
+            for (i = 0; i <= spans.length; i++)
+              if (i in spans && spans[i].className == 'selected') {
+                spans[i].className = '';
+                selected = i;
+              }
+            selected--;
+            for (i = 0; i <= spans.length; i++)
+              if (i in spans && i == selected) {
+                spans[i].className = 'selected';
+              }
+            break;
+          case 13:
+            var spans = document.getElementById('autocomplete').getElementsByTagName('span');
+            for (i = 0; i <= spans.length; i++)
+              if (i in spans && spans[i].className == 'selected') {
+                document.getElementById('input').value = spans[i].innerHTML;
+                document.getElementById('autocomplete').innerHTML = '';
+              }
+            break;
+          default:
+            var div = document.getElementById('autocomplete');
+            var value = document.getElementById('input').value;
+            div.innerHTML = '';
+            if (value.length > 0) {
+              autocomplete.forEach(function(elem, index) {
+                var regex = new RegExp("^" + value, "i");
+                //if(elem.includes(value)) {
+                if (elem.match(regex)) {
+                  var click_func = "choice_city('" + autocomplete[index] + "')"; 
+                  div.innerHTML += '<span onclick="' + click_func + '">' + autocomplete[index] + '</span><br />';
+                }
+              });
+            }
+        }
+      }
+      var choice_city = function(city_name){
+         document.getElementById('input').value = city_name;
+         document.getElementById('autocomplete').innerHTML = '';
+      };
+    </script>
+    <style>
+      input {
+        position: absolute;
+        top: 10px;
+        left: 150px;
+      }
+      
+      #autocomplete {
+        position: absolute;
+        top: 40px;
+        left: 150px;
+      }
+      
+      span.selected {
+        background-color: red;
+      }
+    </style>
+
+  </head>
+  <body >
+    <div class="tabs">
+      <input type="radio" name="tab-btn" id="tab-btn-1" value="" checked>
+      <label for="tab-btn-1">Остановки</label>
+      <input type="radio" name="tab-btn" id="tab-btn-2" value="">
+      <label for="tab-btn-2">Вкладка 2</label>
+      <input type="radio" name="tab-btn" id="tab-btn-3" value="">
+      <label for="tab-btn-3">Поиск транспорта</label>
+      <div id="content-3">
+        <div>
+          <div hieght="60%">
+              <div class="input-row">
+                <input type="text" id="input" />
+                <div id="autocomplete"></div>
+                <span class="input-row" id="inputstop"><input class="input-row" type="search" id="lastbusquery" title="Введите номер маршрута" placeholder="Введите номер маршрута"></span>
+                <button id="lastbus_map_update" onClick="buttonSearchClickHandler();">Поиск</button><span id="lastbus_loading" class=""></span>
+              </div>
+          </div>
+          <div>
+            <textarea id="a"></textarea>
+          </div>
+        </div>
+      </div>
+      <div id="content-2">
+        
+      </div>
+      <div id="content-3">
+        
+      </div>
+    </div>
+  </body>
+</html>
