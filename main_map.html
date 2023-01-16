@@ -3,120 +3,56 @@
 	<meta charset="utf-8">
     <link href="style.css" rel="stylesheet">
     <script type="text/javascript" src="script.js"></script>
-    <script type="text/javascript" language="javascript">
-      var autocomplete = ['абакан', 'армавир', 'баку', 'биробиджан', 'вильнюс'];
-      window.onload = function() {
-        document.getElementById('input').onkeyup = keyUp;
-      }
+    <link src="style.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha1/0.6.0/sha1.min.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.maptiler.com/maplibre-gl-js/v2.4.0/maplibre-gl.js"></script>
+    <link href="https://cdn.maptiler.com/maplibre-gl-js/v2.4.0/maplibre-gl.css" rel="stylesheet" />
+</head>
 
-      function keyUp(e) {
-        var e = e || window.event;
-        switch (e.keyCode) {
-          case 40:
-            var selected = -1;
-            var spans = document.getElementById('autocomplete').getElementsByTagName('span');
-            for (i = 0; i <= spans.length; i++)
-              if (i in spans && spans[i].className == 'selected') {
-                spans[i].className = '';
-                selected = i;
-              }
-            selected++;
-            for (i = 0; i <= spans.length; i++)
-              if (i in spans && i == selected) {
-                spans[i].className = 'selected';
-              }
-            break;
-          case 38:
-            var spans = document.getElementById('autocomplete').getElementsByTagName('span');
-            var selected = spans.length;
-            for (i = 0; i <= spans.length; i++)
-              if (i in spans && spans[i].className == 'selected') {
-                spans[i].className = '';
-                selected = i;
-              }
-            selected--;
-            for (i = 0; i <= spans.length; i++)
-              if (i in spans && i == selected) {
-                spans[i].className = 'selected';
-              }
-            break;
-          case 13:
-            var spans = document.getElementById('autocomplete').getElementsByTagName('span');
-            for (i = 0; i <= spans.length; i++)
-              if (i in spans && spans[i].className == 'selected') {
-                document.getElementById('input').value = spans[i].innerHTML;
-                document.getElementById('autocomplete').innerHTML = '';
-              }
-            break;
-          default:
-            var div = document.getElementById('autocomplete');
-            var value = document.getElementById('input').value;
-            div.innerHTML = '';
-            if (value.length > 0) {
-              autocomplete.forEach(function(elem, index) {
-                var regex = new RegExp("^" + value, "i");
-                //if(elem.includes(value)) {
-                if (elem.match(regex)) {
-                  var click_func = "choice_city('" + autocomplete[index] + "')"; 
-                  div.innerHTML += '<span onclick="' + click_func + '">' + autocomplete[index] + '</span><br />';
-                }
-              });
+<body>
+    <nav class="navbar bg-light" style="height: 15%;">
+        <form autocomplete="off" action="/action_page.php">
+            <div class="autocomplete">
+              <input id="myInput" type="text" placeholder="Введите название остановки">
+              <button type="submit" id="submit" onclick="searchstop(); return false;">Поиск</button>
+            </div>
+        </form>
+    </nav>
+    <div id="map"></div>
+    <script>
+        const key = '9EQyfpsOwIW5xnBcmyXI';
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: `https://api.maptiler.com/maps/streets/style.json?key=${key}`, // style URL
+            center: [50.22125, 53.2415],
+            zoom: 9,
+        });
+
+        getInformationForMarks().then((stops) => 
+        {
+            for (let i = 0; i < stops.length; i++) {
+                var popup = new maplibregl.Popup({ offset: 25 }).setHTML(
+                    `<a href="stop.html?stopid=${stops[i].stop_id}&label=${stops[i].label}">${stops[i].label}</a>`
+                );
+                var el = document.createElement('div');
+                el.id = 'marker';
+                
+                new maplibregl.Marker(el)
+                    .setLngLat([stops[i].longitude, stops[i].latitude])
+                    .setPopup(popup)
+                    .addTo(map);
             }
-        }
-      }
-      var choice_city = function(city_name){
-         document.getElementById('input').value = city_name;
-         document.getElementById('autocomplete').innerHTML = '';
-      };
+        });
+        autocomplete(document.getElementById("myInput"));
     </script>
-    <style>
-      input {
-        position: absolute;
-        top: 10px;
-        left: 150px;
-      }
-      
-      #autocomplete {
-        position: absolute;
-        top: 40px;
-        left: 150px;
-      }
-      
-      span.selected {
-        background-color: red;
-      }
-    </style>
 
-  </head>
-  <body >
-    <div class="tabs">
-      <input type="radio" name="tab-btn" id="tab-btn-1" value="" checked>
-      <label for="tab-btn-1">Остановки</label>
-      <input type="radio" name="tab-btn" id="tab-btn-2" value="">
-      <label for="tab-btn-2">Вкладка 2</label>
-      <input type="radio" name="tab-btn" id="tab-btn-3" value="">
-      <label for="tab-btn-3">Поиск транспорта</label>
-      <div id="content-3">
-        <div>
-          <div hieght="60%">
-              <div class="input-row">
-                <input type="text" id="input" />
-                <div id="autocomplete"></div>
-                <span class="input-row" id="inputstop"><input class="input-row" type="search" id="lastbusquery" title="Введите номер маршрута" placeholder="Введите номер маршрута"></span>
-                <button id="lastbus_map_update" onClick="buttonSearchClickHandler();">Поиск</button><span id="lastbus_loading" class=""></span>
-              </div>
-          </div>
-          <div>
-            <textarea id="a"></textarea>
-          </div>
-        </div>
-      </div>
-      <div id="content-2">
-        
-      </div>
-      <div id="content-3">
-        
-      </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
   </body>
 </html>
