@@ -1,8 +1,3 @@
-ListInputElement = document.querySelector("#input-list");
-InputElement = document.querySelector("#search_text");
-LOADED_STOPS = []
-
-
 class Tag_map {
     constructor(stop_id, label, longitude, latitude) {
         this.stop_id = stop_id
